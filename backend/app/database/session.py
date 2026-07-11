@@ -1,4 +1,5 @@
 from sqlalchemy.orm import sessionmaker
+
 from app.database.connection import engine
 
 SessionLocal = sessionmaker(
@@ -6,3 +7,11 @@ SessionLocal = sessionmaker(
     autoflush=False,
     bind=engine,
 )
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
