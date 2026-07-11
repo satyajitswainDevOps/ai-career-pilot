@@ -19,4 +19,4 @@ class User(Base):
         index=True,
     )
 
-    password: Mapped[str] = mapped_column(String(255))
+    hashed_password: Mapped[str] = mapped_column(String(255))

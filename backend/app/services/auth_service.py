@@ -22,7 +22,7 @@ class AuthService:
             first_name=user.first_name,
             last_name=user.last_name,
             email=user.email,
-            password=hash_password(user.password),
+            hashed_password=hash_password(user.password),
         )
 
         return self.user_repository.create(db_user)
