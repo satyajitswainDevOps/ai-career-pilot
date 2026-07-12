@@ -1,39 +1,29 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
-from jose import jwt
+from jose import JWTError, jwt
 from pwdlib import PasswordHash
 
-password_hash = PasswordHash.recommended()
-
-# TODO: Move these to .env in the next step
-SECRET_KEY = "CHANGE_ME_TO_A_LONG_RANDOM_SECRET"
+SECRET_KEY = "CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_KEY"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
+password_hash = PasswordHash.recommended()
+
 
 def hash_password(password: str) -> str:
-    """Hash a plain text password."""
     return password_hash.hash(password)
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against its hash."""
-    return password_hash.verify(plain_password, hashed_password)
+def verify_password(password: str, hashed_password: str) -> bool:
+    return password_hash.verify(password, hashed_password)
 
 
-def create_access_token(
-    data: dict,
-    expires_delta: Optional[timedelta] = None,
-) -> str:
-    """Create a JWT access token."""
+def create_access_token(data: dict):
 
     to_encode = data.copy()
 
-    expire = datetime.now(timezone.utc) + (
-        expires_delta
-        if expires_delta
-        else timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
     to_encode.update({"exp": expire})
