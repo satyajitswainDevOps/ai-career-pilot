@@ -1,5 +1,5 @@
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 
@@ -7,11 +7,18 @@ from app.database.base import Base
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+        index=True,
+    )
 
-    first_name: Mapped[str] = mapped_column(String(100))
+    first_name: Mapped[str] = mapped_column(
+        String(100)
+    )
 
-    last_name: Mapped[str] = mapped_column(String(100))
+    last_name: Mapped[str] = mapped_column(
+        String(100)
+    )
 
     email: Mapped[str] = mapped_column(
         String(255),
@@ -19,4 +26,12 @@ class User(Base):
         index=True,
     )
 
-    hashed_password: Mapped[str] = mapped_column(String(255))
+    hashed_password: Mapped[str] = mapped_column(
+        String(255)
+    )
+
+    resumes = relationship(
+        "Resume",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )

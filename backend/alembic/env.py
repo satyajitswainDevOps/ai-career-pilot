@@ -1,41 +1,46 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.database.base import Base
 
-# Import all models here so Alembic can detect them
-from app.models import *
+# Import all models so Alembic can detect them
+from app.models import *  # noqa: F401,F403
 
+# Alembic Config object
 config = context.config
 
-# Override the database URL from .env
-# Alembic runs on your Mac, so replace the Docker hostname "postgres"
-# with "localhost".
-database_url = settings.DATABASE_URL.replace("@postgres:", "@localhost:")
-config.set_main_option("sqlalchemy.url", database_url)
+# Read database URL from application settings
+# Replace Docker hostname with localhost when running Alembic locally
+database_url = settings.DATABASE_URL.replace(
+    "@postgres:",
+    "@localhost:",
+)
+
+config.set_main_option(
+    "sqlalchemy.url",
+    database_url,
+)
 
 # Configure logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Metadata for autogeneration
+# Metadata used for autogeneration
 target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
     """Run migrations in offline mode."""
 
-    url = config.get_main_option("sqlalchemy.url")
-
     context.configure(
-        url=url,
+        url=database_url,
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
+        compare_server_default=True,
         dialect_opts={"paramstyle": "named"},
     )
 
@@ -46,8 +51,10 @@ def run_migrations_offline() -> None:
 def run_migrations_online() -> None:
     """Run migrations in online mode."""
 
+    configuration = config.get_section(config.config_ini_section)
+
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
         future=True,
@@ -58,6 +65,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             compare_type=True,
+            compare_server_default=True,
         )
 
         with context.begin_transaction():

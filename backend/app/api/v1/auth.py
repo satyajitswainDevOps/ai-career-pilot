@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
@@ -15,7 +16,7 @@ router = APIRouter(
 @router.post(
     "/register",
     response_model=UserResponse,
-    status_code=201,
+    status_code=status.HTTP_201_CREATED,
 )
 def register(
     user: UserCreate,
@@ -28,7 +29,7 @@ def register(
 
     except ValueError as e:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
 
@@ -36,18 +37,24 @@ def register(
 @router.post(
     "/login",
     response_model=Token,
+    status_code=status.HTTP_200_OK,
 )
 def login(
-    login_data: LoginRequest,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
     service = AuthService(db)
 
+    login_request = LoginRequest(
+        email=form_data.username,
+        password=form_data.password,
+    )
+
     try:
-        return service.login_user(login_data)
+        return service.login_user(login_request)
 
     except ValueError as e:
         raise HTTPException(
-            status_code=401,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
         )
