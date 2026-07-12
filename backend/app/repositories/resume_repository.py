@@ -29,6 +29,20 @@ class ResumeRepository:
             .first()
         )
 
+    def get_by_id_and_user(
+        self,
+        resume_id: int,
+        user_id: int,
+    ):
+        return (
+            self.db.query(Resume)
+            .filter(
+                Resume.id == resume_id,
+                Resume.user_id == user_id,
+            )
+            .first()
+        )
+
     def delete(self, resume: Resume):
         self.db.delete(resume)
         self.db.commit()

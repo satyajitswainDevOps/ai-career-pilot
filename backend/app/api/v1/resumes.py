@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import get_current_user
 from app.database.session import get_db
 from app.models.user import User
-from app.schemas.resume import ResumeResponse
+from app.schemas.resume import ResumeResponse, ResumeTextResponse
 from app.services.resume_service import ResumeService
 
 router = APIRouter(
@@ -52,3 +52,27 @@ def get_my_resumes(
     service = ResumeService(db)
 
     return service.get_user_resumes(current_user)
+
+
+@router.get(
+    "/{resume_id}/text",
+    response_model=ResumeTextResponse,
+)
+def get_resume_text(
+    resume_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    service = ResumeService(db)
+
+    try:
+        return service.get_resume_text(
+            resume_id,
+            current_user,
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e),
+        )

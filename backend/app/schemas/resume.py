@@ -14,3 +14,13 @@ class ResumeResponse(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+
+class ResumeTextResponse(BaseModel):
+    resume_id: int
+    file_name: str
+    extracted_text: str
+
+    model_config = {
+        "from_attributes": True
+    }
